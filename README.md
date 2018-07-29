@@ -99,11 +99,12 @@ Look at this HTML document.  It was created after translating the Rut Web Markup
                  about website
             </li>
         </ul>
+        <a href="https://google.com">click for google</a>
         <h3>Talk to me!</h3>
         <p>Enter your name below and I'll know you visited my website!</p>
+        <br></br>
         <label>Your name: </label>
-        <input type="text">
-        </input>
+        <input type="text"></input>
     </body>
 </html>
 ```
@@ -113,6 +114,7 @@ html {
     head {
         title "My website"
     }
+    // comment
     body {
         h1 "Hey there!"
         h2 "Thanks for visiting my website"
@@ -129,11 +131,12 @@ html {
                 " about website"
             }
         }
+        a|href(https://google.com) "click for google"
         h3 "Talk to me!"
         p "Enter your name below and I'll know you visited my website!"
-        br {}
+        br /
         label "Your name: "
-        input |type(text) {}
+        input |type(text) /
     }
 }
 ```
