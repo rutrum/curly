@@ -60,6 +60,20 @@ title "My Website"
 
 Whitespace _doesn't matter a lick_.  Put spaces, tabs, and linebreaks wherever you please to make your document fit your formatting preferences.
 
+### Empty Tags
+
+Often tags are self closed.  Instead of using curly braces, you can just end the tag using the slash.
+```
+br /
+```
+
+### Comments
+
+You can comment just as you would in many languages by writing double forward slash.  This will comment out the remainder of the line.
+```
+// This is a comment
+```
+
 ## An Example
 
 Look at this HTML document.  It was created after translating the Rut Web Markup file below it.

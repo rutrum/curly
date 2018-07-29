@@ -47,6 +47,10 @@ def compile_next():
             expectTag = True
         else:
             compile_string(False)
+    elif token == "/":
+        expectTag = True
+        write_tag(True)
+        end_tag(True)
     elif token == "":
         # End of file
         return ""
