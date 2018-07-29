@@ -98,7 +98,7 @@ class Read:
 
     def advance_pointer(self):
         self.p += 1
-        if self.p >= len(self.line) - 1: # -1 ignores \n
+        if self.p >= len(self.line) - 2: # -1 ignores \n and some other shit
             self.goto_next_line()
 
     def goto_next_line(self):
