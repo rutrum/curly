@@ -76,38 +76,7 @@ You can comment just as you would in many languages by writing double forward sl
 
 ## An Example
 
-Look at this HTML document.  It was created after translating the Rut Web Markup file below it.
-
-```
-<html>
-    <head>
-        <title>My website</title>
-    </head>
-    <body>
-        <h1>Hey there!</h1>
-        <h2>Thanks for visiting my website</h2>
-        <p>
-            This is my website, where I do 
-            websity things
-        </p>
-        <h3 class="bold">My todo list</h3>
-        <ul>
-            <li>Add more stuff to website</li>
-            <li>
-                Tell 
-                <span style="color:#1411BB;">friends</span>
-                 about website
-            </li>
-        </ul>
-        <a href="https://google.com">click for google</a>
-        <h3>Talk to me!</h3>
-        <p>Enter your name below and I'll know you visited my website!</p>
-        <br></br>
-        <label>Your name: </label>
-        <input type="text"></input>
-    </body>
-</html>
-```
+Look at this document written in rut web markup.  Below it is the html file it translates into.
 
 ```
 html {
@@ -139,4 +108,35 @@ html {
         input |type(text) /
     }
 }
+```
+
+```
+<html>
+    <head>
+        <title>My website</title>
+    </head>
+    <body>
+        <h1>Hey there!</h1>
+        <h2>Thanks for visiting my website</h2>
+        <p>
+            This is my website, where I do 
+            websity things
+        </p>
+        <h3 class="bold">My todo list</h3>
+        <ul>
+            <li>Add more stuff to website</li>
+            <li>
+                Tell 
+                <span style="color:#1411BB;">friends</span>
+                 about website
+            </li>
+        </ul>
+        <a href="https://google.com">click for google</a>
+        <h3>Talk to me!</h3>
+        <p>Enter your name below and I'll know you visited my website!</p>
+        <br></br>
+        <label>Your name: </label>
+        <input type="text"></input>
+    </body>
+</html>
 ```
