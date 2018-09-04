@@ -1,4 +1,4 @@
-# Rut Web Markup
+# Rut Web Markup (Curly)
 
 This is a markup language developed as a way to abbreviate HTML without having to use a javascript framework.
 
@@ -26,7 +26,7 @@ input |type(text) |focus {
 
 CSS did it right.  Why can't you do the same in HTML?  Just append `.classname` and `#idname` to the tagname.
 ```
-div .heading #special {
+div .code #special {
     ...
 }
 ```
@@ -62,7 +62,7 @@ Whitespace _doesn't matter a lick_.  Put spaces, tabs, and linebreaks wherever y
 
 ### Empty Tags
 
-Often tags are self closed.  Instead of using curly braces, you can just end the tag using the slash.
+Often tags are empty or self closed.  Instead of using curly braces, you can just end the tag using the slash.
 ```
 br /
 ```
@@ -72,6 +72,23 @@ br /
 You can comment just as you would in many languages by writing double forward slash.  This will comment out the remainder of the line.
 ```
 // This is a comment
+```
+
+## Grammar
+
+This is not complete nor correct.
+
+```BNF
+<tag> ::= <name> <property> "{" <tag> "}" <tag> | <name> <property> <tag> | ""
+<implicit-tag> ::= <name> <property> { <tag> } | <name> <property> <implicit-tag>
+<property> ::= <id> <property> | <class> <property> | <attribute> <property> | <style> <property> | ""
+<id> ::= "#" <name>
+<class> ::= "." <name>
+<attribute> ::= "|" <name> | "|" <name> "(" <string> ")"
+
+<style> ::= "^" <name> "(" <string> ")" //wrong
+<string> ::= -- Any char array -- //wrong
+<name> ::= -- Any char array without symbols -- //also probs wrong
 ```
 
 ## An Example
@@ -110,7 +127,7 @@ html {
 }
 ```
 
-```
+``` html
 <html>
     <head>
         <title>My website</title>
