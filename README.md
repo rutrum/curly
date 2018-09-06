@@ -1,4 +1,4 @@
-# Rut Web Markup (Curly)
+# Curly
 
 This is a markup language developed as a way to abbreviate HTML without having to use a javascript framework.
 
@@ -89,6 +89,16 @@ This is not complete nor correct.
 <style> ::= "^" <name> "(" <string> ")" //wrong
 <string> ::= -- Any char array -- //wrong
 <name> ::= -- Any char array without symbols -- //also probs wrong
+```
+
+```EBNF
+tag ::= name ( id | class | attribute | style )* ( '{' tag* '}' | tag | "/") | string
+string ::= '"' words '"'
+id ::= "#" name
+class ::= "." name
+attribute ::= "|" name ("(" words ")")?
+style ::= "^" name "(" words ")"
+words ::= (char)*
 ```
 
 ## An Example
