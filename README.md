@@ -2,6 +2,8 @@
 
 This is a markup language developed as a way to abbreviate HTML without having to use a javascript framework.
 
+To see the old version of this translator, written in python, see the `oldpython` branch.
+
 ## Syntax
 
 ### Tags
@@ -103,7 +105,7 @@ words ::= (char)*
 
 ## An Example
 
-Look at this document written in rut web markup.  Below it is the html file it translates into.
+Look at this document written in Curly.  Below it is the HTML file it translates into.
 
 ```
 html {
