@@ -2,7 +2,7 @@
 
 This is a markup language developed as a way to abbreviate HTML without having to use a javascript framework.
 
-To see the old version of this translator, written in python, see the `oldpython` branch.
+To see the working version of this translator, written in python, see the `oldpython` branch.  The compiler in C++ is currently underway.
 
 ## Syntax
 
