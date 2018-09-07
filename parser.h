@@ -1,3 +1,3 @@
-struct parser {
+class parser {
     
-}
+};

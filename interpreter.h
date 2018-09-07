@@ -1,3 +1,3 @@
-struct interpreter {
+class interpreter {
     
-}
+};
