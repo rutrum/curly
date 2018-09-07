@@ -1,4 +1,6 @@
-using namespace std;    
+using namespace std;
+
+#include <string>
 
 #include "lexer.h"
 #include "parser.h"
