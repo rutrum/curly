@@ -3,30 +3,10 @@
 
 class lexer {
 
-    static const char DOT = '.';
-    static const char HASH = '#';
-    static const char SLASH = '/';
-    static const char PIPE = '|';
-    static const char LPAREN = '(';
-    static const char RPAREN = ')';
-    static const char LCURLY = '{';
-    static const char RCURLY = '}';
-    static const char DQUOTE = '"';
-
     ifstream reader;
-    string symbols = ".#/|(){}\"";
+    string symbols = ".#^/|(){}\"";
     string currentToken = "";
     char lastChar = '\0';
-
-    void eat(char symbol) {
-        if (symbol == currentToken[0]) {
-            nextToken();
-        } else {
-            cout << "ERROR" << endl
-                 << "Expected " << symbol << endl
-                 << "Found " << currentToken << endl;
-        }
-    }
 
     void nextToken() {
         currentToken = "";
@@ -79,9 +59,42 @@ class lexer {
 
     public:
 
+    static const char DOT = '.';
+    static const char HASH = '#';
+    static const char CARET = '^';
+    static const char SLASH = '/';
+    static const char PIPE = '|';
+    static const char LPAREN = '(';
+    static const char RPAREN = ')';
+    static const char LCURLY = '{';
+    static const char RCURLY = '}';
+    static const char DQUOTE = '"';
+    
+    lexer() {}
+
     // Constructor
     lexer(string filename) {
         reader.open (filename);
+    }
+
+    // Returns the next token
+    string getNext() {
+        nextToken();
+        return currentToken;
+    }
+
+    bool atEnd() {
+        return reader.eof();
+    }
+
+    void eat(char symbol) {
+        if (symbol == currentToken[0]) {
+            nextToken();
+        } else {
+            cout << "ERROR" << endl
+                 << "Expected " << symbol << endl
+                 << "Found " << currentToken << endl;
+        }
     }
 
     void print() {
