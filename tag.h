@@ -36,9 +36,9 @@ struct tag {
     }
 
     void addChild(tag* child) {
-        if (this->firstChild) {
+        if (this->firstChild != NULL) {
             // First child exists
-            tag* current = child;
+            tag* current = firstChild;
             while (current->hasNextSibling()) {
                 current = current->nextSibling;
             }
@@ -50,12 +50,34 @@ struct tag {
     }
 
     bool hasNextSibling() {
-        if (this->nextSibling) {
-            return false;
-        }
-        return true;
+        return nextSibling != NULL;
     }
 
     // Interpreter methods
+
+    void print() {
+        this->print(0);
+    }
+
+    void print(int d) {
+        string space = "";
+        for (int i = 0; i < d; i++) {
+            space += "    ";
+        }
+        cout << space << this->startTag() << endl;
+        if (this->firstChild != NULL)
+            this->firstChild->print(d+1);
+        cout << space << this->endTag() << endl;
+        if (hasNextSibling())
+            this->nextSibling->print(d);
+    }
+
+    string startTag() {
+        return "<" + this->name + ">";
+    }
+
+    string endTag() {
+        return "</" + this->name + ">";
+    }
 
 };

@@ -13,10 +13,11 @@ int main(int argc, char* argv[]) {
 
     // Lexer
     lexer L(argv[1]);
-    L.print();
+    // L.print();
 
-    // parser P(L);
-    // P.go();
+    parser P(&L);
+    P.go();
+    P.printTree();
 
     //Logic!
 

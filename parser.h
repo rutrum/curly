@@ -22,10 +22,6 @@ class parser {
 
     }
 
-    void addTag() {
-        
-    }
-
     public:
 
     tag* head;
@@ -38,46 +34,46 @@ class parser {
     void go() {
 
         head = new tag(NULL, "html");
-        tag* current = head;
+        tag* parent = head;
+        tag* child = NULL;
 
         while (!reader->atEnd()) {
 
+            cout << parent->name << " is current" << endl;
+
             string token = reader->getNext();
+            cout << token[0] << endl;
 
-            if (token.length() > 1) {
-                // Must be a tag name
-                
-                // Create child
-                tag* child = new tag(current, token);
-                current->addChild(child);
-
-                // Change current focus
-                current = child;
-
-            } else {
-                // Must be a symbol
-                if (token[0] == lexer::DOT) {
-                    parseClass();
-                } else if (token[0] == lexer::HASH) {
-                    parseId();
-                } else if (token[0] == lexer::PIPE) {
-                    parseAttribute();
-                } else if (token[0] == lexer::CARET) {
-                    parseStyle();
-                } else if (token[0] == lexer::DQUOTE) {
-                    parseString();
-                } else if (token[0] == lexer::SLASH) {
-                    
-                } else if (token[0] == lexer::RCURLY) {
+            switch(token[0]) {
+                case '{':
+                    // Tag declaration done
+                    // Focus on child
+                    parent->addChild(child);
+                    cout << "Adding child " << child->name << " to " << parent->name << endl;
+                    parent = child;
+                    child = NULL;
+                    break;
+                case '}':
                     // Tag done, go to parent
-                    // current = current->parent;
-                }
+                    parent = parent->parent;
+                    cout << "new parent " << parent->name << endl;
+                    child = NULL;
+                    break;
+                default:
+                    // Must be a tag name
+                
+                    // Create child
+                    child = new tag(parent, token);
+
+                    break;
             }
             
         }
     }
 
-    
+    void printTree() {
+        head->print();
+    }
 
 
 };
