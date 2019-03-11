@@ -1,74 +1,50 @@
-class tag2 {
+class tag {
 
-    struct tuple {
-        string name;
-        string value;
-        tuple(string name, string value) {
-            this->name = name;
-            this->value = value;
-        }
-    };
-
-    string tagName;
-    vector<string> ids;
-    vector<string> classes;
-    vector<tuple> attributes;
-    vector<tuple> style;
-
-    bool isString;
-    string strVal;
-
-    tag* firstChild = nullptr;
-    tag* nextSibling = nullptr;
-
-    public:
-
-    tag(string content) {
-        this->isString = false;
-        tagName = content;
-    }
-
-    tag(string content, bool isString) {
-        this->isString = isString;
-        if (isString) {
-            strVal = content;
-        } else {
-            tagName = content;
-        }
-    }
-
-    void addId(string id) {
-        ids.push_back(id);
-    }
+    // Properties
     
-    void addClass(string clas) {
-        classes.push_back(clas);
+    string name;
+
+    string id;
+    vector<string> classes;
+
+    tag* parent;
+    tag* firstChild;
+    tag* nextSibling;
+
+public:
+
+    // Constructors
+
+    tag(tag* parent, string name) {
+        
+        this->name = name;
+
+        this->id = "";
+        this->classes = {};
+
+        this->parent = parent;
+        this->firstChild = NULL;
+        this->nextSibling = NULL;
     }
 
-    void addAttribute(string name, string value) {
-        attributes.push_back(tuple(name, value));
+    // Parser methods
+
+    void setId(string id) {
+        this->id = id;
     }
 
-    void addStyle(string name, string value) {
-        style.push_back(tuple(name, value));
+    void addClass(string classname) {
+        this->classes.push_back(classname);
     }
 
-    void setChild(tag* t) {
-        firstChild = t;
+    void setFirstChild(tag* child) {
+        this->firstChild = child;
     }
 
-    void setSibling(tag* t) {
-        nextSibling = t;
+    void setNextSibling(tag* sibling) {
+        this->nextSibling = nextSibling;
     }
 
-    // Functions below are to be added to the interpreter
-
-    void getStartTag() {
-
-    }
-
-    string getEndTag() {
-        return "<" + tagName + ">";
-    }
+    // Interpreter methods
 
 };

@@ -1,0 +1,16 @@
+head {
+    title {}
+}
+body {
+    h1 {}
+    ul {
+        li {}
+        li {}
+        li {
+            span {}
+        }
+    }
+    div {
+        h2 {}
+    }
+}
