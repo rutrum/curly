@@ -72,8 +72,16 @@ struct tag {
             this->nextSibling->print(d);
     }
 
+    string getId() {
+        if (id == "") {
+            return "";
+        } else {
+            return " id=\"" + id + "\"";
+        }
+    }
+
     string startTag() {
-        return "<" + this->name + ">";
+        return "<" + this->name + getId() + ">";
     }
 
     string endTag() {

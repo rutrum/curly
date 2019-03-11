@@ -39,26 +39,29 @@ class parser {
 
         while (!reader->atEnd()) {
 
-            cout << parent->name << " is current" << endl;
-
             string token = reader->getNext();
-            cout << token[0] << endl;
 
             switch(token[0]) {
                 case '{':
                     // Tag declaration done
                     // Focus on child
                     parent->addChild(child);
-                    cout << "Adding child " << child->name << " to " << parent->name << endl;
                     parent = child;
                     child = NULL;
                     break;
+
                 case '}':
                     // Tag done, go to parent
                     parent = parent->parent;
-                    cout << "new parent " << parent->name << endl;
                     child = NULL;
                     break;
+
+                case '#': {
+                    string idName = reader->getNext();
+                    child->setId(idName);
+                    break;
+                }
+
                 default:
                     // Must be a tag name
                 
