@@ -1,4 +1,4 @@
-class tag {
+struct tag {
 
     // Properties
     
@@ -10,8 +10,6 @@ class tag {
     tag* parent;
     tag* firstChild;
     tag* nextSibling;
-
-public:
 
     // Constructors
 
@@ -37,12 +35,25 @@ public:
         this->classes.push_back(classname);
     }
 
-    void setFirstChild(tag* child) {
-        this->firstChild = child;
+    void addChild(tag* child) {
+        if (this->firstChild) {
+            // First child exists
+            tag* current = child;
+            while (current->hasNextSibling()) {
+                current = current->nextSibling;
+            }
+            current->nextSibling = child;
+        } else {
+            // No children already
+            this->firstChild = child;
+        }
     }
 
-    void setNextSibling(tag* sibling) {
-        this->nextSibling = nextSibling;
+    bool hasNextSibling() {
+        if (this->nextSibling) {
+            return false;
+        }
+        return true;
     }
 
     // Interpreter methods

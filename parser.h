@@ -37,7 +37,7 @@ class parser {
     // Returns the head of the tag tree
     void go() {
 
-        head = new tag("html");
+        head = new tag(NULL, "html");
         tag* current = head;
 
         while (!reader->atEnd()) {
@@ -46,7 +46,14 @@ class parser {
 
             if (token.length() > 1) {
                 // Must be a tag name
-                tag* child = new tag(token);
+                
+                // Create child
+                tag* child = new tag(current, token);
+                current->addChild(child);
+
+                // Change current focus
+                current = child;
+
             } else {
                 // Must be a symbol
                 if (token[0] == lexer::DOT) {
@@ -61,8 +68,9 @@ class parser {
                     parseString();
                 } else if (token[0] == lexer::SLASH) {
                     
-                } else if (token[0] == lexer::LCURLY) {
-
+                } else if (token[0] == lexer::RCURLY) {
+                    // Tag done, go to parent
+                    // current = current->parent;
                 }
             }
             

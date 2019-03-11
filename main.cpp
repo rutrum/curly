@@ -5,8 +5,8 @@ using namespace std;
 
 #include "lexer.h"
 // #include "tag.h"
-#include "tag2.h"
-// #include "parser.h"
+#include "tag.h"
+#include "parser.h"
 // #include "interpreter.h"
 
 int main(int argc, char* argv[]) {
