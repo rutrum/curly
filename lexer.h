@@ -69,8 +69,6 @@ class lexer {
     static const char LCURLY = '{';
     static const char RCURLY = '}';
     static const char DQUOTE = '"';
-    
-    lexer() {}
 
     // Constructor
     lexer(string filename) {

@@ -1,4 +1,4 @@
-class tag {
+class tag2 {
 
     struct tuple {
         string name;
@@ -22,6 +22,11 @@ class tag {
     tag* nextSibling = nullptr;
 
     public:
+
+    tag(string content) {
+        this->isString = false;
+        tagName = content;
+    }
 
     tag(string content, bool isString) {
         this->isString = isString;

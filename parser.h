@@ -22,7 +22,13 @@ class parser {
 
     }
 
+    void addTag() {
+        
+    }
+
     public:
+
+    tag* head;
 
     parser(lexer* reader) {
         this->reader = reader;
@@ -30,10 +36,17 @@ class parser {
 
     // Returns the head of the tag tree
     void go() {
+
+        head = new tag("html");
+        tag* current = head;
+
         while (!reader->atEnd()) {
+
             string token = reader->getNext();
+
             if (token.length() > 1) {
                 // Must be a tag name
+                tag* child = new tag(token);
             } else {
                 // Must be a symbol
                 if (token[0] == lexer::DOT) {
