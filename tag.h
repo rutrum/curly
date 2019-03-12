@@ -6,6 +6,8 @@ struct tag {
 
     string id;
     vector<string> classes;
+    vector<string> styleProps;
+    vector<string> styleValues;
 
     tag* parent;
     tag* firstChild;
@@ -33,6 +35,12 @@ struct tag {
 
     void addClass(string classname) {
         this->classes.push_back(classname);
+    }
+
+    void addStyle(string property, string value) {
+        cout << property << value << endl;
+        styleProps.push_back(property);
+        styleValues.push_back(value);
     }
 
     void addChild(tag* child) {
@@ -93,9 +101,25 @@ struct tag {
         }
     }
 
+    string getStyle() {
+        if (styleProps.size() == 0) {
+            return "";
+        } else {
+            string styleStr = " style=\"";
+            for (int i = 0; i < styleProps.size() - 1; i++) {
+                styleStr += styleProps[i] + ":"
+                        + styleValues[i] + "; ";
+            }
+            styleStr += styleProps[styleProps.size() - 1] + ":"
+                    + styleValues[styleProps.size() - 1];
+            return styleStr + "\"";
+        }
+    }
+
     string startTag() {
         return "<" + this->name + getId() 
-                + getClasses() + ">";
+                + getClasses() 
+                + getStyle() + ">";
     }
 
     string endTag() {

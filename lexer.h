@@ -85,6 +85,7 @@ class lexer {
         return reader.eof();
     }
 
+    // doesnt work
     void eat(char symbol) {
         if (symbol == currentToken[0]) {
             nextToken();

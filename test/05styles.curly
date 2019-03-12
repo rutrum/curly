@@ -1,0 +1,7 @@
+body {
+    h1 ^color(red) {}
+    p ^border(1px solid black) ^width(100px) {
+        span ^display(block) {}
+        div ^display(inline-block) {}
+    }
+}

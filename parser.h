@@ -68,6 +68,20 @@ class parser {
                     break;
                 }
 
+                case '^': {
+                    string property = reader->getNext();
+                    cout << property << endl;
+                    reader->getNext();
+                    string value = reader->getNext();
+                    string next = reader->getNext();
+                    while (next[0] != ')') {
+                        value += " " + next;
+                        next = reader->getNext();
+                    }
+                    child->addStyle(property, value);
+                    break;
+                }
+
                 default:
                     // Must be a tag name
                 
