@@ -62,6 +62,12 @@ class parser {
                     break;
                 }
 
+                case '.': {
+                    string className = reader->getNext();
+                    child->addClass(className);
+                    break;
+                }
+
                 default:
                     // Must be a tag name
                 

@@ -80,8 +80,22 @@ struct tag {
         }
     }
 
+    string getClasses() {
+        if (classes.size() == 0) {
+            return "";
+        } else {
+            string classStr = " class=\"";
+            for (int i = 0; i < classes.size() - 1; i++) {
+                classStr += classes[i] + " ";
+            }
+            classStr += classes[classes.size() - 1];
+            return classStr + "\"";
+        }
+    }
+
     string startTag() {
-        return "<" + this->name + getId() + ">";
+        return "<" + this->name + getId() 
+                + getClasses() + ">";
     }
 
     string endTag() {
