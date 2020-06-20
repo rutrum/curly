@@ -1,32 +1,37 @@
 # Curly
 
-This is a markup language developed as a way to abbreviate HTML without having to use a javascript framework.
+Compiles to HTML.  One foot in the door into programming language development.
 
-To see the working version of this translator, written in python, see the `oldpython` branch.  The compiler in C++ is currently underway.
+# Syntax
 
-## Syntax
+## Tags
 
-### Tags
-
-Tags no longer have start and end tags, nor do they use angle brackets.  To write a body tag, just write the tag name followed by open and closed curly braces, with your inner html inside.
 ```
+head {
+    title { ... }
+}
 body {
+    div {
+        ul {
+            li { ... }
+            li { ... }
+        }
+    }
+}
+```
+
+## Attributes
+
+```
+input type(text) focus() value(Enter name...) {
     ...
 }
 ```
 
-### Attributes
-
-Writing equals and quotes is so tedious.  Function syntax is much more familiar.  To add any attribute to your tag, append `|attribute(value)` or just `|attribute`.
-```
-input |type(text) |focus {
-    ...
-}
-```
+## Attribute Shorthands
 
 ### Classes and IDs
 
-CSS did it right.  Why can't you do the same in HTML?  Just append `.classname` and `#idname` to the tagname.
 ```
 div .code #special {
     ...
@@ -35,72 +40,44 @@ div .code #special {
 
 ### Styles
 
-Styles are used so often, those too should get a shorthand.  Just append `^property(value)` to the tagname.
 ```
 div ^color(red) {
     ...
 }
 ```
 
-### Strings
+## Escaped Strings
 
-Because your plaintext is often more complicated than HTML interprets it, and is ambiguous with tagnames, just put your content in quotes.
 ```
 span {
-    "Hello World!"
+    "Hello\nWorld!"
 }
 ```
 
-### Implicit Bracing
+## Raw Strings
 
-Sometimes our code can get cluttered with braces for the simplest of html. If you have just a single child tag or string, you can ignore the braces altogether.
 ```
-title "My Website"
+span {{
+    "Hello\nWorld!"
+}}
 ```
 
-### Whitespace
+## Implicit Bracing
 
-Whitespace _doesn't matter a lick_.  Put spaces, tabs, and linebreaks wherever you please to make your document fit your formatting preferences.
+```
+head title "My Website"
+```
 
 ### Empty Tags
 
-Often tags are empty or self closed.  Instead of using curly braces, you can just end the tag using the slash.
 ```
 br /
 ```
 
 ### Comments
 
-You can comment just as you would in many languages by writing double forward slash.  This will comment out the remainder of the line.
 ```
 // This is a comment
-```
-
-## Grammar
-
-This is not complete nor correct.
-
-```BNF
-<tag> ::= <name> <property> "{" <tag> "}" <tag> | <name> <property> <tag> | ""
-<implicit-tag> ::= <name> <property> { <tag> } | <name> <property> <implicit-tag>
-<property> ::= <id> <property> | <class> <property> | <attribute> <property> | <style> <property> | ""
-<id> ::= "#" <name>
-<class> ::= "." <name>
-<attribute> ::= "|" <name> | "|" <name> "(" <string> ")"
-
-<style> ::= "^" <name> "(" <string> ")" //wrong
-<string> ::= -- Any char array -- //wrong
-<name> ::= -- Any char array without symbols -- //also probs wrong
-```
-
-```EBNF
-tag ::= name ( id | class | attribute | style )* ( '{' tag* '}' | tag | "/") | string
-string ::= '"' words '"'
-id ::= "#" name
-class ::= "." name
-attribute ::= "|" name ("(" words ")")?
-style ::= "^" name "(" words ")"
-words ::= (char)*
 ```
 
 ## An Example
@@ -116,10 +93,10 @@ html {
     body {
         h1 "Hey there!"
         h2 "Thanks for visiting my website"
-        p {
-            "This is my website, where I do "
-            "websity things"
-        }
+        p {{
+            This is my website, where I do
+            websity things
+        }}
         h3 .bold "My todo list"
         ul {
             li "Add more stuff to website"
@@ -129,12 +106,12 @@ html {
                 " about website"
             }
         }
-        a|href(https://google.com) "click for google"
+        a href(https://google.com) "click for google"
         h3 "Talk to me!"
         p "Enter your name below and I'll know you visited my website!"
         br /
         label "Your name: "
-        input |type(text) /
+        input type(text) /
     }
 }
 ```
