@@ -1,6 +1,11 @@
 #[derive(Debug)]
 pub struct Token {
     pub val: TokenType,
+    pub loc: Location,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct Location {
     pub line: usize,
     pub col: usize,
 }
@@ -9,8 +14,7 @@ impl Token {
     pub fn new(val: String, line: usize, col: usize) -> Self {
         Token {
             val: val.into(),
-            line,
-            col,
+            loc: Location { line, col }
         }
     }
 }
@@ -22,6 +26,7 @@ pub enum TokenType {
     CloseCurly,
     OpenParens,
     CloseParens,
+    DoubleQuote,
     Caret,
     Hash,
     Dot,
@@ -35,6 +40,7 @@ impl From<String> for TokenType {
             "}" => CloseCurly,
             "(" => OpenParens,
             ")" => CloseParens,
+            "\"" => DoubleQuote,
             "^" => Caret,
             "#" => Hash,
             "." => Dot,

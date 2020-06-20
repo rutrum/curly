@@ -44,33 +44,49 @@ impl fmt::Display for Tag {
 }
 
 #[derive(Debug)]
-pub struct TagTree {
-    this: Tag,
-    children: Vec<Box<TagTree>>,
+pub enum Tree {
+    Node(Node),
+    Literal(String),
 }
 
-impl TagTree {
-    pub fn new(this: Tag) -> Self {
-        Self {
-            this,
-            children: Vec::new(),
-        }
-    }
-
-    pub fn add_child(&mut self, child: TagTree) {
-        self.children.push(Box::new(child));
-    }
-
+impl Tree {
     pub fn to_html(&self) {
         self.to_html_tabbed(0);
     }
 
     fn to_html_tabbed(&self, tabs: usize) {
         let spacing = (0..tabs * 4).map(|_| " ").collect::<String>();
-        println!("{}{}", spacing, self.this.start_tag());
-        for child in &self.children {
-            child.to_html_tabbed(tabs + 1);
+        use Tree::*;
+        match self {
+            Node(node) => {
+                println!("{}{}", spacing, node.tag.start_tag());
+                for child in &node.children {
+                    child.to_html_tabbed(tabs + 1);
+                }
+                println!("{}{}", spacing, node.tag.end_tag());
+            }
+            Literal(s) => {
+                println!("{}{}", spacing, s);
+            }
         }
-        println!("{}{}", spacing, self.this.end_tag());
+    }
+}
+
+#[derive(Debug)]
+pub struct Node {
+    tag: Tag,
+    children: Vec<Box<Tree>>,
+}
+
+impl Node {
+    pub fn new(tag: Tag) -> Self {
+        Self {
+            tag,
+            children: Vec::new(),
+        }
+    }
+
+    pub fn add_child(&mut self, child: Tree) {
+        self.children.push(Box::new(child));
     }
 }

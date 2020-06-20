@@ -1,0 +1,8 @@
+body {
+    ul {
+        li { "Red" }
+        li { "Green" }
+        li { "Blue" }
+        "Alpha"
+    }
+}

@@ -1,19 +1,19 @@
-use crate::lexer::{Token, TokenType};
-use crate::tag::{Tag, TagTree};
+use crate::lexer::{Token, TokenType, Location};
+use crate::tag::{Tag, Tree, Node};
 use std::vec::IntoIter;
 use std::fmt;
 
-type Result = std::result::Result<TagTree, Error>;
+type Result = std::result::Result<Tree, Error>;
 
 #[derive(Debug)]
 pub struct Error {
-    token: Token,
+    loc: Location,
     error: ErrorType,
 }
 
 impl Error {
-    pub fn new(token: Token, error: ErrorType) -> Self {
-        Self { token, error }
+    pub fn new(loc: Location, error: ErrorType) -> Self {
+        Self { loc, error }
     }
 }
 
@@ -22,7 +22,7 @@ impl fmt::Display for Error {
         write!(
             f,
             "{} at line {}, col {}",
-            self.error, self.token.line, self.token.col
+            self.error, self.loc.line, self.loc.col
         )
     }
 }
@@ -32,23 +32,28 @@ pub enum ErrorType {
     EOF,
     UnexpectedClose,
     StartWithoutTag,
-    ExpectedIdName
+    ExpectedIdName,
+    ExpectedString,
+    ExpectedCloseString,
 }
 
 impl fmt::Display for ErrorType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         use ErrorType::*;
-        match self {
-            EOF => write!(f, "Unexpected end of file"),
-            UnexpectedClose => write!(f, "Unexpected close tag"),
-            StartWithoutTag => write!(f, "Cannot start tag without name"),
-            ExpectedIdName => write!(f, "Expected id name"),
-        }
+        let s = match self {
+            EOF => "Unexpected end of file",
+            UnexpectedClose => "Unexpected close tag",
+            StartWithoutTag => "Cannot start tag without name",
+            ExpectedIdName => "Expected id name",
+            ExpectedString => "Expected string",
+            ExpectedCloseString => "Expected quotes to close string",
+        };
+        write!(f, "{}", s)
     }
 }
 
 pub fn parse(tokens: Vec<Token>) -> Result {
-    let root = TagTree::new(Tag::new("html".to_string()));
+    let root = Node::new(Tag::new("html".to_string()));
     let mut token_iter = tokens.into_iter();
 
     let tree = parse_children(root, &mut token_iter)?;
@@ -57,26 +62,50 @@ pub fn parse(tokens: Vec<Token>) -> Result {
 }
 
 fn parse_children(
-    mut root: TagTree,
+    mut node: Node,
     mut token_iter: &mut IntoIter<Token>,
 ) -> Result {
     while let Some(token) = token_iter.next() {
         use TokenType::*;
 
         match &token.val {
-            OpenCurly => {}
             CloseCurly => {
-                return Ok(root);
+                break;
             }
             Literal(s) => {
                 let child = parse_tag(s, &mut token_iter)?;
-                root.add_child(child);
+                node.add_child(child);
+            }
+            DoubleQuote => {
+                let child = parse_literal(&token, token_iter)?;
+                node.add_child(child);
+                let next_token = token_iter.next();
+                match next_token {
+                    Some(Token { val: TokenType::DoubleQuote, .. }) => {}
+                    Some(a) => return Err(Error::new(a.loc, ErrorType::ExpectedCloseString)),
+                    None => return Err(Error::new(token.loc, ErrorType::EOF))
+                }
             }
             _ => unimplemented!(),
         }
     }
 
-    Ok(root)
+    Ok(Tree::Node(node))
+}
+
+fn eat(expected: Token, token_iter: &mut IntoIter<Token>) {
+    
+}
+
+fn parse_literal(last_token: &Token, token_iter: &mut IntoIter<Token>) -> Result {
+    if let Some(token) = token_iter.next() {
+        match token.val {
+            TokenType::Literal(s) => Ok(Tree::Literal(s)),
+            _ => Err(Error::new(token.loc, ErrorType::ExpectedString)),
+        }
+    } else {
+        Err(Error::new(last_token.loc, ErrorType::EOF))
+    }
 }
 
 fn parse_tag(tag_name: &str, token_iter: &mut IntoIter<Token>) -> Result {
@@ -87,16 +116,17 @@ fn parse_tag(tag_name: &str, token_iter: &mut IntoIter<Token>) -> Result {
 
         match &token.val {
             OpenCurly => {
-                let tree = TagTree::new(tag);
-                return parse_children(tree, token_iter);
+                let node = Node::new(tag);
+                let tree = parse_children(node, token_iter)?;
+                return Ok(tree);
             }
             Hash => {
                 match token_iter.next() {
                     Some(Token { val: Literal(id_name), .. }) => {
                         tag.add_id(id_name);
                     },
-                    Some(token) => return Err(Error::new(token, ErrorType::ExpectedIdName)),
-                    None => return Err(Error::new(token, ErrorType::EOF)),
+                    Some(token) => return Err(Error::new(token.loc, ErrorType::ExpectedIdName)),
+                    None => return Err(Error::new(token.loc, ErrorType::EOF)),
                 }
             }
             _ => unimplemented!(),
