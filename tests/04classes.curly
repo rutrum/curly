@@ -1,5 +1,5 @@
 body {
-    div .big .red .padded .wide {
+    div .big .red .padded .wide #important {
         p .bold {
             span .boxed {}
         }

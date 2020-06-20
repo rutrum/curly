@@ -4,5 +4,6 @@ body {
         li { "Green" }
         li { "Blue" }
         "Alpha"
+        li {}
     }
 }

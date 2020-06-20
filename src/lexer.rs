@@ -1,3 +1,5 @@
+use std::fmt;
+
 #[derive(Debug)]
 pub struct Token {
     pub val: TokenType,
@@ -14,12 +16,12 @@ impl Token {
     pub fn new(val: String, line: usize, col: usize) -> Self {
         Token {
             val: val.into(),
-            loc: Location { line, col }
+            loc: Location { line, col },
         }
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub enum TokenType {
     Literal(String),
     OpenCurly,
@@ -49,6 +51,24 @@ impl From<String> for TokenType {
     }
 }
 
+impl fmt::Display for TokenType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        use TokenType::*;
+        let s = match self {
+            Literal(s) => s.as_str(),
+            OpenCurly => "{",
+            CloseCurly => "}",
+            OpenParens => "(",
+            CloseParens => ")",
+            DoubleQuote => "\"",
+            Caret => "^",
+            Hash => "#",
+            Dot => ".",
+        };
+        write!(f, "{}", s)
+    }
+}
+
 enum CharType {
     Whitespace,
     Alphabetic,
@@ -75,7 +95,7 @@ pub fn tokenize(content: String) -> Vec<Token> {
     let mut buf_col = 0;
     let mut literal = false;
 
-    for (line, line_raw) in content.split("\n").enumerate().map(|(l, r)| (l + 1, r)) {
+    for (line, line_raw) in content.split('\n').enumerate().map(|(l, r)| (l + 1, r)) {
         for (col, c) in line_raw.chars().enumerate().map(|(col, c)| (col + 1, c)) {
             use CharType::*;
             match c.into() {

@@ -4,8 +4,8 @@ use std::fmt;
 pub struct Tag {
     name: String,
     ids: Vec<String>,
-    //classes: Vec<String>,
-    //styles: Vec<(String, String)>
+    classes: Vec<String>,
+    styles: Vec<(String, String)>,
 }
 
 impl Tag {
@@ -20,12 +20,49 @@ impl Tag {
         self.ids.push(id);
     }
 
+    pub fn add_class(&mut self, class: String) {
+        self.classes.push(class);
+    }
+
+    pub fn add_style(&mut self, prop: String, value: String) {
+        self.styles.push((prop, value));
+    }
+
     pub fn start_tag(&self) -> String {
-        format!("<{}{}>", self.name, self.id_string())
+        format!(
+            "<{}{}{}{}>",
+            self.name,
+            self.id_string(),
+            self.class_string(),
+            self.style_string()
+        )
+    }
+
+    pub fn style_string(&self) -> String {
+        if self.styles.is_empty() {
+            String::new()
+        } else {
+            format!(
+                " style=\"{}\"",
+                self.styles
+                    .iter()
+                    .map(|(p, v)| format!("{}:{}", p, v))
+                    .collect::<Vec<String>>()
+                    .join("; ")
+            )
+        }
+    }
+
+    pub fn class_string(&self) -> String {
+        if self.classes.is_empty() {
+            String::new()
+        } else {
+            format!(" class=\"{}\"", self.classes.join(" "))
+        }
     }
 
     pub fn id_string(&self) -> String {
-        if self.ids.len() == 0 {
+        if self.ids.is_empty() {
             String::new()
         } else {
             format!(" id=\"{}\"", self.ids.join(" "))
@@ -50,24 +87,53 @@ pub enum Tree {
 }
 
 impl Tree {
-    pub fn to_html(&self) {
-        self.to_html_tabbed(0);
-    }
-
-    fn to_html_tabbed(&self, tabs: usize) {
-        let spacing = (0..tabs * 4).map(|_| " ").collect::<String>();
+    pub fn to_html_min(&self) -> String {
         use Tree::*;
         match self {
             Node(node) => {
-                println!("{}{}", spacing, node.tag.start_tag());
-                for child in &node.children {
-                    child.to_html_tabbed(tabs + 1);
+                let middle = node
+                    .children
+                    .iter()
+                    .map(Tree::to_html_min)
+                    .collect::<String>();
+                format!("{}{}{}", node.tag.start_tag(), middle, node.tag.end_tag())
+            }
+            Literal(s) => s.to_string(),
+        }
+    }
+
+    pub fn to_html(&self) -> String {
+        self.to_html_tabbed(0)
+    }
+
+    fn to_html_tabbed(&self, tabs: usize) -> String {
+        let spacing = (0..tabs * 4).map(|_| " ").collect::<String>();
+        use Tree::*;
+        match self {
+            Node(node) => match node.children.len() {
+                0 => format!(
+                    "{}{}{}\n",
+                    spacing,
+                    node.tag.start_tag(),
+                    node.tag.end_tag()
+                ),
+                _ => {
+                    let middle = node
+                        .children
+                        .iter()
+                        .map(|x| x.to_html_tabbed(tabs + 1))
+                        .collect::<String>();
+                    format!(
+                        "{}{}\n{}{}{}\n",
+                        spacing,
+                        node.tag.start_tag(),
+                        middle,
+                        spacing,
+                        node.tag.end_tag(),
+                    )
                 }
-                println!("{}{}", spacing, node.tag.end_tag());
-            }
-            Literal(s) => {
-                println!("{}{}", spacing, s);
-            }
+            },
+            Literal(s) => format!("{}{}", spacing, s),
         }
     }
 }
@@ -75,7 +141,7 @@ impl Tree {
 #[derive(Debug)]
 pub struct Node {
     tag: Tag,
-    children: Vec<Box<Tree>>,
+    children: Vec<Tree>,
 }
 
 impl Node {
@@ -87,6 +153,6 @@ impl Node {
     }
 
     pub fn add_child(&mut self, child: Tree) {
-        self.children.push(Box::new(child));
+        self.children.push(child);
     }
 }
