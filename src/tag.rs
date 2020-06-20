@@ -6,6 +6,7 @@ pub struct Tag {
     ids: Vec<String>,
     classes: Vec<String>,
     styles: Vec<(String, String)>,
+    attributes: Vec<(String, Option<String>)>,
 }
 
 impl Tag {
@@ -28,14 +29,34 @@ impl Tag {
         self.styles.push((prop, value));
     }
 
+    pub fn add_attribute(&mut self, prop: String, value: Option<String>) {
+        self.attributes.push((prop, value));
+    }
+
     pub fn start_tag(&self) -> String {
         format!(
-            "<{}{}{}{}>",
+            "<{}{}{}{}{}>",
             self.name,
             self.id_string(),
             self.class_string(),
-            self.style_string()
+            self.style_string(),
+            self.attribute_string(),
         )
+    }
+
+    pub fn attribute_string(&self) -> String {
+        if self.attributes.is_empty() {
+            return String::new();
+        }
+        let s = self.attributes
+            .iter()
+            .map(|(p, opt)| match opt {
+                Some(v) => format!("{}=\"{}\"", p, v),
+                None => format!("{}", p),
+            })
+            .collect::<Vec<String>>()
+            .join(" ");
+        format!(" {}", s)
     }
 
     pub fn style_string(&self) -> String {

@@ -69,16 +69,23 @@ impl fmt::Display for TokenType {
     }
 }
 
+#[derive(Debug)]
 enum CharType {
     Whitespace,
     Alphabetic,
     Punctuation,
+    StartRaw,
+    EndRaw,
 }
 
 impl From<char> for CharType {
     fn from(c: char) -> Self {
         use CharType::*;
-        if c.is_ascii_whitespace() {
+        if c == '(' {
+            StartRaw
+        } else if c == ')' {
+            EndRaw
+        } else if c.is_ascii_whitespace() {
             Whitespace
         } else if c.is_ascii_punctuation() && c != '-' {
             Punctuation
@@ -98,6 +105,7 @@ pub fn tokenize(content: String) -> Vec<Token> {
     for (line, line_raw) in content.split('\n').enumerate().map(|(l, r)| (l + 1, r)) {
         for (col, c) in line_raw.chars().enumerate().map(|(col, c)| (col + 1, c)) {
             use CharType::*;
+            println!("{}{:?}", c, CharType::from(c));
             match c.into() {
                 Whitespace => {
                     if literal {
@@ -105,6 +113,9 @@ pub fn tokenize(content: String) -> Vec<Token> {
                             buf_col = col;
                         }
                         buf.push(c);
+                    } else if !buf.is_empty() {
+                        tokens.push(Token::new(buf.to_string(), line, buf_col));
+                        buf = String::new();
                     }
                 }
                 Alphabetic => {
@@ -114,6 +125,29 @@ pub fn tokenize(content: String) -> Vec<Token> {
                     buf.push(c);
                 }
                 Punctuation => {
+                    if c == '(' {
+                        literal = true;
+                    } else if c == ')' {
+                        literal = false;
+                    }
+
+                    if literal {
+                        if buf.is_empty() {
+                            buf_col = col;
+                        }
+                        buf.push(c);
+                    } else {
+                        if !buf.is_empty() {
+                            tokens.push(Token::new(buf.to_string(), line, buf_col));
+                            buf = String::new();
+                        }
+
+                        let t = Token::new(c.to_string(), line, col);
+                        tokens.push(t);
+                    }
+                }
+                StartRaw => {
+                    literal = true;
                     if !buf.is_empty() {
                         tokens.push(Token::new(buf.to_string(), line, buf_col));
                         buf = String::new();
@@ -121,12 +155,16 @@ pub fn tokenize(content: String) -> Vec<Token> {
 
                     let t = Token::new(c.to_string(), line, col);
                     tokens.push(t);
-
-                    if c == '(' {
-                        literal = true;
-                    } else if c == ')' {
-                        literal = false;
+                }
+                EndRow => {
+                    literal = false;
+                    if !buf.is_empty() {
+                        tokens.push(Token::new(buf.to_string(), line, buf_col));
+                        buf = String::new();
                     }
+
+                    let t = Token::new(c.to_string(), line, col);
+                    tokens.push(t);
                 }
             }
         }

@@ -3,7 +3,7 @@ use crate::tag::Tree;
 
 use std::fmt;
 
-pub type Result = std::result::Result<Tree, Error>;
+pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Debug)]
 pub struct Error {
