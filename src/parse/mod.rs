@@ -80,6 +80,9 @@ fn parse_tag(tag_name: &str, token_iter: &mut TokenIter) -> Result<Tree> {
                 eat(TokenType::CloseParens, &token, token_iter)?;
                 tag.add_style(prop, val);
             }
+            Slash => {
+                return Ok(Tree::Node(Node::new(tag)));
+            }
             Literal(prop) => {
                 // For now, I assume it is an attribute
                 eat(TokenType::OpenParens, &token, token_iter)?;

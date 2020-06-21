@@ -32,6 +32,7 @@ pub enum TokenType {
     Caret,
     Hash,
     Dot,
+    Slash,
 }
 
 impl From<String> for TokenType {
@@ -46,6 +47,7 @@ impl From<String> for TokenType {
             "^" => Caret,
             "#" => Hash,
             "." => Dot,
+            "/" => Slash,
             _ => Literal(s),
         }
     }
@@ -64,6 +66,7 @@ impl fmt::Display for TokenType {
             Caret => "^",
             Hash => "#",
             Dot => ".",
+            Slash => "/",
         };
         write!(f, "{}", s)
     }
