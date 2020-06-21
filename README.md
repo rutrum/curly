@@ -46,7 +46,7 @@ div ^color(red) {
 }
 ```
 
-## Escaped Strings
+## Escaped Strings (Planned)
 
 ```
 span {
@@ -54,7 +54,7 @@ span {
 }
 ```
 
-## Raw Strings
+## Raw Strings (Planned)
 
 ```
 span {{
@@ -68,19 +68,19 @@ span {{
 head title "My Website"
 ```
 
-### Empty Tags
+## Empty Tags
 
 ```
 br /
 ```
 
-### Comments
+## Comments (Planned)
 
 ```
 // This is a comment
 ```
 
-## An Example
+# An Example
 
 Look at this document written in Curly.  Below it is the HTML file it translates into.
 
