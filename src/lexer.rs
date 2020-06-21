@@ -107,10 +107,51 @@ enum LiteralBlock {
     Not,
 }
 
+struct TokenBuilder {
+    tokens: Vec<Token>,
+    buf: String,
+    col: usize,
+}
+
+impl TokenBuilder {
+    pub fn new() -> Self {
+        Self {
+            tokens: Vec::new(),
+            buf: String::new(),
+            col: 0,
+        }
+    }
+
+    pub fn push_buf(&mut self, c: char, col: usize) {
+        if self.buf.is_empty() {
+            self.col = col;
+        }
+        self.buf.push(c);
+    }
+
+    pub fn flush_buf(&mut self, line: usize) {
+        self.col = 0;
+        let b = std::mem::replace(&mut self.buf, String::new());
+        if !b.is_empty() {
+            self.tokens.push(Token::new(b, line, self.col));
+        }
+    }
+
+    pub fn add_token(&mut self, c: char, line: usize, col: usize) {
+        if !self.buf.is_empty() {
+            self.flush_buf(line)
+        }
+        let t = Token::new(c.to_string(), line, col);
+        self.tokens.push(t);
+    }
+
+    pub fn into_vec(self) -> Vec<Token> {
+        self.tokens
+    }
+}
+
 pub fn tokenize(content: String) -> Vec<Token> {
-    let mut tokens = Vec::new();
-    let mut buf = String::new();
-    let mut buf_col = 0;
+    let mut builder = TokenBuilder::new();
     let mut literal = LiteralBlock::Not;
 
     for (line, line_raw) in content.split('\n').enumerate().map(|(l, r)| (l + 1, r)) {
@@ -120,77 +161,43 @@ pub fn tokenize(content: String) -> Vec<Token> {
             match (c.into(), literal) {
                 (Whitespace, Not) => {
                     // whitespace not in literal block
-                    if !buf.is_empty() {
-                        tokens.push(Token::new(buf.to_string(), line, buf_col));
-                        buf = String::new();
-                    }
+                    builder.flush_buf(line);
                 }
                 (Whitespace, _) => {
                     // whitespace in literal block
-                    if buf.is_empty() {
-                        buf_col = col;
-                    }
-                    buf.push(c);
+                    builder.push_buf(c, col);
                 }
                 (StartParens, Not) => {
                     // Start of parens block
                     literal = ParensBlock;
-                    if !buf.is_empty() {
-                        tokens.push(Token::new(buf.to_string(), line, buf_col));
-                        buf = String::new();
-                    }
-                    let t = Token::new(c.to_string(), line, col);
-                    tokens.push(t);
+                    builder.add_token(c, line, col);
                 }
                 (Quotes, Not) => {
                     // Start of quotes block
                     literal = QuotesBlock;
-                    if !buf.is_empty() {
-                        tokens.push(Token::new(buf.to_string(), line, buf_col));
-                        buf = String::new();
-                    }
-                    let t = Token::new(c.to_string(), line, col);
-                    tokens.push(t);
+                    builder.add_token(c, line, col);
 
                 }
                 (Punctuation, Not) => {
                     // Not blocking punc not in a block
-                    if !buf.is_empty() {
-                        tokens.push(Token::new(buf.to_string(), line, buf_col));
-                        buf = String::new();
-                    }
-                    let t = Token::new(c.to_string(), line, col);
-                    tokens.push(t);
+                    builder.add_token(c, line, col);
                 }
                 (EndParens, ParensBlock) => {
                     // Close parens end the block!
                     literal = Not;
-                    if !buf.is_empty() {
-                        tokens.push(Token::new(buf.to_string(), line, buf_col));
-                        buf = String::new();
-                    }
-                    let t = Token::new(c.to_string(), line, col);
-                    tokens.push(t);
+                    builder.add_token(c, line, col);
                 }
                 (Quotes, QuotesBlock) => {
                     // Quotes end the block!
                     literal = Not;
-                    if !buf.is_empty() {
-                        tokens.push(Token::new(buf.to_string(), line, buf_col));
-                        buf = String::new();
-                    }
-                    let t = Token::new(c.to_string(), line, col);
-                    tokens.push(t);
+                    builder.add_token(c, line, col);
                 }
                 (_, _) => {
                     // Some symbol
-                    if buf.is_empty() {
-                        buf_col = col;
-                    }
-                    buf.push(c);
+                    builder.push_buf(c, col);
                 }
             }
         }
     }
-    tokens
+    builder.into_vec()
 }
