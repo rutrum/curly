@@ -77,97 +77,110 @@ enum CharType {
     Whitespace,
     Alphabetic,
     Punctuation,
-    StartRaw,
-    EndRaw,
 }
 
 impl From<char> for CharType {
     fn from(c: char) -> Self {
         use CharType::*;
-        if c == '(' {
-            StartRaw
-        } else if c == ')' {
-            EndRaw
-        } else if c.is_ascii_whitespace() {
+        if c.is_ascii_whitespace() {
             Whitespace
-        } else if c.is_ascii_punctuation() && c != '-' {
-            Punctuation
         } else {
-            //c.is_ascii_alphabetic() {
-            Alphabetic
-        }
+            if let TokenType::Literal(_) = TokenType::from(c.to_string()) {
+                Alphabetic
+            } else {
+                Punctuation
+            }
+        } 
     }
+}
+
+#[derive(Eq, PartialEq, Clone, Copy)]
+enum LiteralBlock {
+    Parens,
+    Quotes,
+    Not,
 }
 
 pub fn tokenize(content: String) -> Vec<Token> {
     let mut tokens = Vec::new();
     let mut buf = String::new();
     let mut buf_col = 0;
-    let mut literal = false;
+    let mut literal = LiteralBlock::Not;
 
     for (line, line_raw) in content.split('\n').enumerate().map(|(l, r)| (l + 1, r)) {
         for (col, c) in line_raw.chars().enumerate().map(|(col, c)| (col + 1, c)) {
             use CharType::*;
-            println!("{}{:?}", c, CharType::from(c));
-            match c.into() {
-                Whitespace => {
-                    if literal {
-                        if buf.is_empty() {
-                            buf_col = col;
-                        }
-                        buf.push(c);
-                    } else if !buf.is_empty() {
+            use LiteralBlock::*;
+            match (c.into(), literal) {
+                (Whitespace, Not) => {
+                    // whitespace not in literal block
+                    if !buf.is_empty() {
                         tokens.push(Token::new(buf.to_string(), line, buf_col));
                         buf = String::new();
                     }
                 }
-                Alphabetic => {
+                (Whitespace, _) => {
+                    // whitespace in literal block
                     if buf.is_empty() {
                         buf_col = col;
                     }
                     buf.push(c);
                 }
-                Punctuation => {
+                (Alphabetic, _) => {
+                    // alphabetic in any block
+                    if buf.is_empty() {
+                        buf_col = col;
+                    }
+                    buf.push(c);
+                }
+                (Punctuation, Not) => {
+                    // symbol not in a literal block, is it quote or parens?
                     if c == '(' {
-                        literal = true;
-                    } else if c == ')' {
-                        literal = false;
+                        literal = Parens;
+                    } else if c == '"'{
+                        literal = Quotes;
                     }
 
-                    if literal {
-                        if buf.is_empty() {
-                            buf_col = col;
-                        }
-                        buf.push(c);
-                    } else {
+                    if !buf.is_empty() {
+                        tokens.push(Token::new(buf.to_string(), line, buf_col));
+                        buf = String::new();
+                    }
+                    let t = Token::new(c.to_string(), line, col);
+                    tokens.push(t);
+                }
+                (Punctuation, Parens) => {
+                    // symbol in a parens block, is it parens?
+                    if c == ')' {
+                        literal = Not;
                         if !buf.is_empty() {
                             tokens.push(Token::new(buf.to_string(), line, buf_col));
                             buf = String::new();
                         }
-
                         let t = Token::new(c.to_string(), line, col);
                         tokens.push(t);
+                    } else {
+                        if buf.is_empty() {
+                            buf_col = col;
+                        }
+                        buf.push(c);
                     }
                 }
-                StartRaw => {
-                    literal = true;
-                    if !buf.is_empty() {
-                        tokens.push(Token::new(buf.to_string(), line, buf_col));
-                        buf = String::new();
+                (Punctuation, Quotes) => {
+                    // symbol in a quotes block, is it also quotes?
+                    if c == '"' {
+                        literal = Not;
+                        if !buf.is_empty() {
+                            tokens.push(Token::new(buf.to_string(), line, buf_col));
+                            buf = String::new();
+                        }
+                        let t = Token::new(c.to_string(), line, col);
+                        tokens.push(t);
+                    } else {
+                        if buf.is_empty() {
+                            buf_col = col;
+                        }
+                        buf.push(c);
                     }
-
-                    let t = Token::new(c.to_string(), line, col);
-                    tokens.push(t);
-                }
-                EndRow => {
-                    literal = false;
-                    if !buf.is_empty() {
-                        tokens.push(Token::new(buf.to_string(), line, buf_col));
-                        buf = String::new();
-                    }
-
-                    let t = Token::new(c.to_string(), line, col);
-                    tokens.push(t);
                 }
             }
         }

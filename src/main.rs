@@ -4,7 +4,7 @@ use curly::lexer;
 use curly::parse;
 
 fn main() {
-    let content = fs::read_to_string("tests/08selfClosing.curly").unwrap();
+    let content = fs::read_to_string("tests/10testOfStrength.curly").unwrap();
     println!("{}", content);
 
     let tokens = lexer::tokenize(content);

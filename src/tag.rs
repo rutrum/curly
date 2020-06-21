@@ -154,7 +154,7 @@ impl Tree {
                     )
                 }
             },
-            Literal(s) => format!("{}{}", spacing, s),
+            Literal(s) => format!("{}{}\n", spacing, s),
         }
     }
 }
