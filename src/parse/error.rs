@@ -1,5 +1,4 @@
 use crate::lexer::{Location, TokenType};
-use crate::tag::Tree;
 
 use std::fmt;
 

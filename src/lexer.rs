@@ -77,6 +77,9 @@ enum CharType {
     Whitespace,
     Alphabetic,
     Punctuation,
+    StartParens,
+    EndParens,
+    Quotes,
 }
 
 impl From<char> for CharType {
@@ -84,11 +87,14 @@ impl From<char> for CharType {
         use CharType::*;
         if c.is_ascii_whitespace() {
             Whitespace
-        } else {
-            if let TokenType::Literal(_) = TokenType::from(c.to_string()) {
+        } else if let TokenType::Literal(_) = TokenType::from(c.to_string()) {
                 Alphabetic
-            } else {
-                Punctuation
+        } else {
+            match c {
+                '(' => StartParens,
+                ')' => EndParens,
+                '\"' => Quotes,
+                _ => Punctuation
             }
         } 
     }
@@ -96,8 +102,8 @@ impl From<char> for CharType {
 
 #[derive(Eq, PartialEq, Clone, Copy)]
 enum LiteralBlock {
-    Parens,
-    Quotes,
+    ParensBlock,
+    QuotesBlock,
     Not,
 }
 
@@ -126,21 +132,9 @@ pub fn tokenize(content: String) -> Vec<Token> {
                     }
                     buf.push(c);
                 }
-                (Alphabetic, _) => {
-                    // alphabetic in any block
-                    if buf.is_empty() {
-                        buf_col = col;
-                    }
-                    buf.push(c);
-                }
-                (Punctuation, Not) => {
-                    // symbol not in a literal block, is it quote or parens?
-                    if c == '(' {
-                        literal = Parens;
-                    } else if c == '"'{
-                        literal = Quotes;
-                    }
-
+                (StartParens, Not) => {
+                    // Start of parens block
+                    literal = ParensBlock;
                     if !buf.is_empty() {
                         tokens.push(Token::new(buf.to_string(), line, buf_col));
                         buf = String::new();
@@ -148,39 +142,52 @@ pub fn tokenize(content: String) -> Vec<Token> {
                     let t = Token::new(c.to_string(), line, col);
                     tokens.push(t);
                 }
-                (Punctuation, Parens) => {
-                    // symbol in a parens block, is it parens?
-                    if c == ')' {
-                        literal = Not;
-                        if !buf.is_empty() {
-                            tokens.push(Token::new(buf.to_string(), line, buf_col));
-                            buf = String::new();
-                        }
-                        let t = Token::new(c.to_string(), line, col);
-                        tokens.push(t);
-                    } else {
-                        if buf.is_empty() {
-                            buf_col = col;
-                        }
-                        buf.push(c);
+                (Quotes, Not) => {
+                    // Start of quotes block
+                    literal = QuotesBlock;
+                    if !buf.is_empty() {
+                        tokens.push(Token::new(buf.to_string(), line, buf_col));
+                        buf = String::new();
                     }
+                    let t = Token::new(c.to_string(), line, col);
+                    tokens.push(t);
+
                 }
-                (Punctuation, Quotes) => {
-                    // symbol in a quotes block, is it also quotes?
-                    if c == '"' {
-                        literal = Not;
-                        if !buf.is_empty() {
-                            tokens.push(Token::new(buf.to_string(), line, buf_col));
-                            buf = String::new();
-                        }
-                        let t = Token::new(c.to_string(), line, col);
-                        tokens.push(t);
-                    } else {
-                        if buf.is_empty() {
-                            buf_col = col;
-                        }
-                        buf.push(c);
+                (Punctuation, Not) => {
+                    // Not blocking punc not in a block
+                    if !buf.is_empty() {
+                        tokens.push(Token::new(buf.to_string(), line, buf_col));
+                        buf = String::new();
                     }
+                    let t = Token::new(c.to_string(), line, col);
+                    tokens.push(t);
+                }
+                (EndParens, ParensBlock) => {
+                    // Close parens end the block!
+                    literal = Not;
+                    if !buf.is_empty() {
+                        tokens.push(Token::new(buf.to_string(), line, buf_col));
+                        buf = String::new();
+                    }
+                    let t = Token::new(c.to_string(), line, col);
+                    tokens.push(t);
+                }
+                (Quotes, QuotesBlock) => {
+                    // Quotes end the block!
+                    literal = Not;
+                    if !buf.is_empty() {
+                        tokens.push(Token::new(buf.to_string(), line, buf_col));
+                        buf = String::new();
+                    }
+                    let t = Token::new(c.to_string(), line, col);
+                    tokens.push(t);
+                }
+                (_, _) => {
+                    // Some symbol
+                    if buf.is_empty() {
+                        buf_col = col;
+                    }
+                    buf.push(c);
                 }
             }
         }

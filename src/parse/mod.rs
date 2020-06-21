@@ -46,36 +46,6 @@ fn parse_children(mut node: Node, mut token_iter: &mut TokenIter) -> Result<Tree
     Ok(Tree::Node(node))
 }
 
-fn parse_child(mut node: Node, mut token_iter: &mut TokenIter) -> Result<Tree> {
-    if let Some(token) = token_iter.next() {
-        use TokenType::*;
-        println!("child: {:?}", token);
-
-        match &token.val {
-            Literal(s) => {
-                let child = parse_tag(s, &mut token_iter)?;
-                node.add_child(child);
-            }
-            DoubleQuote => {
-                let child = parse_literal(&token, token_iter)?;
-                node.add_child(child);
-                let next_token = token_iter.next();
-                match next_token {
-                    Some(Token {
-                        val: TokenType::DoubleQuote,
-                        ..
-                    }) => {}
-                    Some(a) => return Err(Error::new(a.loc, ErrorType::ExpectedCloseString)),
-                    None => return Err(Error::new(token.loc, ErrorType::EOF)),
-                }
-            }
-            s => panic!("{}", s),
-        }
-    }
-
-    Ok(Tree::Node(node))
-}
-
 fn parse_literal(last_token: &Token, token_iter: &mut TokenIter) -> Result<Tree> {
     if let Some(token) = token_iter.next() {
         match token.val {

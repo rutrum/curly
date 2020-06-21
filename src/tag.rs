@@ -52,7 +52,7 @@ impl Tag {
             .iter()
             .map(|(p, opt)| match opt {
                 Some(v) => format!("{}=\"{}\"", p, v),
-                None => format!("{}", p),
+                None => p.to_string(),
             })
             .collect::<Vec<String>>()
             .join(" ");
