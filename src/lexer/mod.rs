@@ -1,76 +1,5 @@
-use std::fmt;
-
-#[derive(Debug)]
-pub struct Token {
-    pub val: TokenType,
-    pub loc: Location,
-}
-
-#[derive(Debug, Clone, Copy)]
-pub struct Location {
-    pub line: usize,
-    pub col: usize,
-}
-
-impl Token {
-    pub fn new(val: String, line: usize, col: usize) -> Self {
-        Token {
-            val: val.into(),
-            loc: Location { line, col },
-        }
-    }
-}
-
-#[derive(Debug, Clone, Eq, PartialEq)]
-pub enum TokenType {
-    Literal(String),
-    OpenCurly,
-    CloseCurly,
-    OpenParens,
-    CloseParens,
-    DoubleQuote,
-    Caret,
-    Hash,
-    Dot,
-    Slash,
-}
-
-impl From<String> for TokenType {
-    fn from(s: String) -> Self {
-        use TokenType::*;
-        match s.as_str() {
-            "{" => OpenCurly,
-            "}" => CloseCurly,
-            "(" => OpenParens,
-            ")" => CloseParens,
-            "\"" => DoubleQuote,
-            "^" => Caret,
-            "#" => Hash,
-            "." => Dot,
-            "/" => Slash,
-            _ => Literal(s),
-        }
-    }
-}
-
-impl fmt::Display for TokenType {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        use TokenType::*;
-        let s = match self {
-            Literal(s) => s.as_str(),
-            OpenCurly => "{",
-            CloseCurly => "}",
-            OpenParens => "(",
-            CloseParens => ")",
-            DoubleQuote => "\"",
-            Caret => "^",
-            Hash => "#",
-            Dot => ".",
-            Slash => "/",
-        };
-        write!(f, "{}", s)
-    }
-}
+pub mod token;
+pub use token::{TokenType, Location, Token};
 
 #[derive(Debug)]
 enum CharType {
@@ -88,15 +17,15 @@ impl From<char> for CharType {
         if c.is_ascii_whitespace() {
             Whitespace
         } else if let TokenType::Literal(_) = TokenType::from(c.to_string()) {
-                Alphabetic
+            Alphabetic
         } else {
             match c {
                 '(' => StartParens,
                 ')' => EndParens,
                 '\"' => Quotes,
-                _ => Punctuation
+                _ => Punctuation,
             }
-        } 
+        }
     }
 }
 
@@ -163,10 +92,6 @@ pub fn tokenize(content: String) -> Vec<Token> {
                     // whitespace not in literal block
                     builder.flush_buf(line);
                 }
-                (Whitespace, _) => {
-                    // whitespace in literal block
-                    builder.push_buf(c, col);
-                }
                 (StartParens, Not) => {
                     // Start of parens block
                     literal = ParensBlock;
@@ -176,24 +101,18 @@ pub fn tokenize(content: String) -> Vec<Token> {
                     // Start of quotes block
                     literal = QuotesBlock;
                     builder.add_token(c, line, col);
-
                 }
                 (Punctuation, Not) => {
                     // Not blocking punc not in a block
                     builder.add_token(c, line, col);
                 }
-                (EndParens, ParensBlock) => {
-                    // Close parens end the block!
-                    literal = Not;
-                    builder.add_token(c, line, col);
-                }
-                (Quotes, QuotesBlock) => {
-                    // Quotes end the block!
+                (EndParens, ParensBlock) | (Quotes, QuotesBlock) => {
+                    // Ending a literal block
                     literal = Not;
                     builder.add_token(c, line, col);
                 }
                 (_, _) => {
-                    // Some symbol
+                    // Some symbol, letter, or whitespace in literal block
                     builder.push_buf(c, col);
                 }
             }

@@ -12,7 +12,7 @@ body {
     ul {
         li "Add more stuff to website"
         li {
-            "Tell your " 
+            "Tell" "your " 
             span ^color(#1411BB) "friends" 
             " about website"
         }

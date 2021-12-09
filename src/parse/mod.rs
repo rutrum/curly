@@ -1,5 +1,5 @@
 use crate::lexer::{Token, TokenType};
-use crate::tag::{Node, Tag, Tree};
+use crate::tree::{Node, Tag, Tree};
 
 pub mod error;
 use error::{Error, ErrorType, Result};
@@ -101,7 +101,9 @@ fn parse_tag(tag_name: &str, token_iter: &mut TokenIter) -> Result<Tree> {
                                     val: TokenType::CloseParens,
                                     ..
                                 }) => None,
-                                Some(token) => return Err(Error::new(token.loc, ErrorType::ExpectedLiteral)),
+                                Some(token) => {
+                                    return Err(Error::new(token.loc, ErrorType::ExpectedLiteral))
+                                }
                                 None => return Err(Error::new(token.loc, ErrorType::EOF)),
                             };
                             tag.add_attribute(prop.to_string(), optv);
@@ -116,7 +118,7 @@ fn parse_tag(tag_name: &str, token_iter: &mut TokenIter) -> Result<Tree> {
                             let tree = Tree::Node(parent);
                             return Ok(tree);
                         }
-                    }
+                    },
                     None => return Err(Error::new(token.loc, ErrorType::EOF)),
                 }
             }
